@@ -18,16 +18,22 @@ export default function Modal({ children, onClose }: ModalProps) {
   }, [onClose]);
 
   useEffect(() => {
-  document.body.style.overflow = "hidden";
-
-  return () => {
-    document.body.style.overflow = "";
-  };
-}, []);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   return createPortal(
-    <div className={css.backdrop} onClick={onClose}>
-      <div className={css.modal} onClick={(e) => e.stopPropagation()}>
+    <div
+      className={css.backdrop}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div className={css.modal}>
         {children}
       </div>
     </div>,

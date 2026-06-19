@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useDebouncedCallback } from "use-debounce";
+
 import css from "./NotesPage.module.css";
 
 import { fetchNotes } from "@/lib/api";
@@ -18,9 +20,14 @@ export default function NotesClient() {
   const [search, setSearch] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const debouncedSearch = useDebouncedCallback((value: string) => {
+    setPage(1);
+    setSearch(value);
+  }, 500);
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ["notes", page, search],
-    queryFn: () => fetchNotes(search), // ⚠️ временно без page (важно ниже)
+    queryFn: () => fetchNotes(search, page),
     refetchOnMount: false,
   });
 
@@ -31,9 +38,8 @@ export default function NotesClient() {
 
   return (
     <div className={css.app}>
-      {/* TOP BAR (ОДНА ЛИНИЯ) */}
       <header className={css.toolbar}>
-        <SearchBox onChange={(value: string) => setSearch(value)} />
+        <SearchBox onChange={debouncedSearch} />
 
         <div className={css.right}>
           <Pagination
@@ -42,19 +48,14 @@ export default function NotesClient() {
             onPageChange={(e) => setPage(e.selected + 1)}
           />
 
-          <button
-            className={css.button}
-            onClick={() => setIsModalOpen(true)}
-          >
+          <button onClick={() => setIsModalOpen(true)}>
             Create note +
           </button>
         </div>
       </header>
 
-      {/* GRID LIST */}
       <NoteList notes={notes} />
 
-      {/* MODAL */}
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
           <NoteForm onClose={() => setIsModalOpen(false)} />
