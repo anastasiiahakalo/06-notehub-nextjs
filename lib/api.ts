@@ -13,11 +13,14 @@ export type NotesResponse = {
   totalPages: number;
 };
 
-export const fetchNotes = async (
-  search: string = "",
-  page: number = 1
-): Promise<NotesResponse> => {
-  const { data } = await api.get<NotesResponse>("/notes", {
+export const fetchNotes = async ({
+  search = "",
+  page = 1,
+}: {
+  search?: string;
+  page?: number;
+}): Promise<NotesResponse> => {
+  const { data } = await api.get("/notes", {
     params: { search, page },
   });
 

@@ -33,6 +33,7 @@ export default function NotesClient() {
   });
 
   const notes: Note[] = data?.notes ?? [];
+  const totalPages = data?.totalPages;
 
   if (isLoading) return <p>Loading, please wait...</p>;
   if (isError) return <p>Something went wrong.</p>;
@@ -43,11 +44,13 @@ export default function NotesClient() {
         <SearchBox onChange={debouncedSearch} />
 
         <div className={css.right}>
-          <Pagination
-            pageCount={data?.totalPages ?? 1}
-            forcePage={page - 1}
-            onPageChange={(e) => setPage(e.selected + 1)}
-          />
+          {totalPages && totalPages > 1 && (
+            <Pagination
+              pageCount={totalPages}
+              forcePage={page - 1}
+              onPageChange={(e) => setPage(e.selected + 1)}
+            />
+          )}
 
           <button onClick={() => setIsModalOpen(true)}>
             Create note +
